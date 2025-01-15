@@ -9,7 +9,7 @@ from modeling import ImageClassifier, ImageEncoder
 from heads import get_classification_head
 
 ## Static parameters ##
-LOG_FREQUENCY = 20
+LOG_FREQUENCY = 50
 
 if __name__ == '__main__':
     print("[INFO] Cuda acceleration:", "ON" if torch.cuda.is_available() else "OFF")
@@ -29,11 +29,11 @@ if __name__ == '__main__':
     encoder = ImageEncoder(args)                                    # Pre-trained CLIP ViT backbone
 
     # Save pre-trained weights (don’t need to store classification heads)
-    encoder.save(args.save + "zeroshot.pt")
+    encoder.save(args.save + "encoder_Zeroshot.pt")
 
     # Iterate over each dataset
     for dataset_name in dataset_names:
-        print("Finetuning on " + dataset_name)
+        print("Starting finetuning process on " + dataset_name)
         # Instantiate a full model architecture
         encoder = ImageEncoder(args)                                # Pre-trained CLIP ViT backbone
         
@@ -92,4 +92,4 @@ if __name__ == '__main__':
                 current_step += 1
 
         # Save fine-tuned weights (don’t need to store classification heads)
-        model.image_encoder.save(args.save + "finetuned.pt")
+        model.image_encoder.save(args.save + "encoder_" + dataset_name + ".pt")
