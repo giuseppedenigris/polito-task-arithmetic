@@ -12,8 +12,10 @@ from heads import get_classification_head
 LOG_FREQUENCY = 50
 
 if __name__ == '__main__':
+    # Useful to see if the system supports cuda acceleration
     print("[INFO] Cuda acceleration:", "ON" if torch.cuda.is_available() else "OFF")
 
+    # Get the cli arguments
     args = parse_arguments()
 
     # Define loss function
@@ -51,14 +53,6 @@ if __name__ == '__main__':
         # Obtain the Train split of the dataset
         train_dataset = get_dataset(dataset_name + "Val", preprocess=model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
         train_split = get_dataloader(train_dataset, is_train=True, args=args)
-
-        # Obtain the Validation split of the dataset
-        val_dataset = get_dataset(dataset_name + "Val", preprocess=model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
-        val_split = get_dataloader(val_dataset, is_train=False, args=args)
-
-        # Obtain the Test split of the dataset
-        test_dataset = get_dataset(dataset_name, preprocess=model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
-        test_split = get_dataloader(test_dataset, is_train=False, args=args)
 
         # Start iterating over the epochs
         current_step = 0
