@@ -66,25 +66,18 @@ if __name__ == '__main__':
     dataset_names = ["DTD", "EuroSAT", "GTSRB", "MNIST", "RESISC45", "SVHN"]
 
     # Load the pre-trained encoder
-    pt_encoder = utils.torch_load(args.save + "encoder_Zeroshot.pt", args.device)
+    pt_encoder = ImageEncoder(args)
 
     # Accuracies (on both val and test split) for pre-trained model
     results_pt = {}
 
-    # Accuracies (on both val and test split) for fine-tuned models
-    results_ft = {}
-
     # Iterate over each dataset
-    for dataset_name in dataset_names:
+    for dataset_name in dataset_names[:1]:
         # Get the classification head of the dataset
         head = get_classification_head(args, dataset_name + "Val")  # Get the open-vocabulary classifier of the dataset
-
-        # Load the encoder finetuned on the dataset
-        ft_encoder = utils.torch_load(args.save + "encoder_" + dataset_name + ".pt", args.device)
         
         # Attach the classification head to the encoders
         pt_model = ImageClassifier(pt_encoder, head)
-        ft_model = ImageClassifier(ft_encoder, head)
 
         # Obtain the Validation split of the dataset
         val_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
@@ -96,11 +89,8 @@ if __name__ == '__main__':
 
         print("Collecting results on " + dataset_name + ", Pre-Trained model")
         results_pt[dataset_name] = compute_accuracies(pt_model, val_split, test_split, args.device)
-        print("Collecting results on " + dataset_name + ", Fine-Tuned model")
-        results_ft[dataset_name] = compute_accuracies(ft_model, val_split, test_split, args.device)
+
+        print("##" + dataset_name + ":", results_pt[dataset_name])
     
-    with open(args.save + "results_pt.json", "w+") as fp:
+    with open(args.save + "test_results_pt.json", "w+") as fp:
         json.dump(results_pt, fp)
-    
-    with open(args.save + "results_ft.json", "w+") as fp:
-        json.dump(results_ft, fp)
