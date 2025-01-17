@@ -5,7 +5,7 @@
 # Run finetune.py
 python finetune.py \
 --data-location=data/ \
---save=results/finetune/ \
+--save=results/ \
 --batch-size=32 \
 --lr=1e-4 \
 --wd=0.0
@@ -13,9 +13,9 @@ python finetune.py \
 # Run eval_single_task.py
 python eval_single_task.py \
 --data-location=data/ \
---save=results/eval_single_task/
+--save=results/
 
 # Run eval_task_addition.py
 python eval_task_addition.py \
 --data-location=data/ \
---save=results/eval_task_addition/
+--save=results/
