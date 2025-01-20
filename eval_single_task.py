@@ -15,13 +15,13 @@ import utils
 DL_NUM_WORKERS = 2                          # Dataloader 'num_workers' parameter
 
 
-def compute_accuracy(model: ImageClassifier, split: torch.utils.data.DataLoader, device: str) -> float:
+def compute_accuracy(model: ImageClassifier, split: torch.utils.data.DataLoader, device: str, use_tqdm=True) -> float:
     model.train(False)                      # Set model to evaluation mode
     model.to(device)                        # Move to GPU if device is cuda
     
     with torch.no_grad():
         corrects, total = 0, 0
-        for batch in tqdm(split):
+        for batch in tqdm(split) if use_tqdm else split:
             # Bring data over the device of choice
             data = maybe_dictionarize(batch)
             images, labels = data["images"].to(device), data["labels"].to(device)
