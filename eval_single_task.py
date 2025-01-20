@@ -71,8 +71,8 @@ if __name__ == '__main__':
         pt_model = ImageClassifier(pt_encoder, head)
         ft_model = ImageClassifier(ft_encoder, head)
 
-        # Obtain the Validation split of the dataset
-        train_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
+        # Obtain the Train split of the dataset
+        train_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
         train_split = get_dataloader(train_dataset, is_train=True, args=args)
 
         # Obtain the Test split of the dataset
