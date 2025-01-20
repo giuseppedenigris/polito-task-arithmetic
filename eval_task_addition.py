@@ -56,7 +56,7 @@ if __name__ == '__main__':
     
     # Compute normalized accuracies for each alpha
     norm_accuracies = {}
-    for alpha in tqdm(alpha_range):
+    for alpha in alpha_range:
         # Build the encoder with alpha scaling
         merged_encoder = task_vector_sum.apply_to(args.save + "encoder_Zeroshot.pt", scaling_coef=alpha)
 
@@ -72,6 +72,7 @@ if __name__ == '__main__':
                 val_splits[dataset_name] = get_dataloader(val_datasets[dataset_name], is_train=False, args=args)
 
             # Compute absolute accuracy
+            print(f"#DBG: alpha: {alpha}  dataset: {dataset_name}")
             abs_accuracy = eval_single_task.compute_accuracy(merged_model, val_splits[dataset_name], args.device)
 
             # Normalize w.r.t. the single_task accuracy of the finetuned model
@@ -82,6 +83,8 @@ if __name__ == '__main__':
     
     # Select alpha with maximum Avg Normalized Accuracy
     alpha = max(norm_accuracies, key=lambda alpha: norm_accuracies[alpha]["Average"])
+
+    print("Optimal alpha:", alpha)
 
     # --------------------------------------------------------------------------------------------------------------------
 
@@ -98,15 +101,12 @@ if __name__ == '__main__':
 
     # Iterate over each dataset
     for dataset_name in dataset_names:
-        # Get the classification head of the dataset
-        head = get_classification_head(args, dataset_name + "Val")      # Get the open-vocabulary classifier of the dataset
-
         # Build the Scaled Finetuned encoder
         sf_encoder = task_vectors[dataset_name].apply_to(args.save + "encoder_Zeroshot.pt", scaling_coef=alpha)
         
         # Attach the classification head to the encoders
-        mg_model = ImageClassifier(mg_encoder, head)
-        sf_model = ImageClassifier(sf_encoder, head)
+        mg_model = ImageClassifier(mg_encoder, classification_heads[dataset_name])
+        sf_model = ImageClassifier(sf_encoder, classification_heads[dataset_name])
 
         # Obtain the Train split of the dataset
         train_dataset = get_dataset(dataset_name + "Val", preprocess=mg_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
