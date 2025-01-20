@@ -72,8 +72,8 @@ if __name__ == '__main__':
         ft_model = ImageClassifier(ft_encoder, head)
 
         # Obtain the Validation split of the dataset
-        val_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
-        val_split = get_dataloader(val_dataset, is_train=False, args=args)
+        train_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
+        train_split = get_dataloader(train_dataset, is_train=True, args=args)
 
         # Obtain the Test split of the dataset
         test_dataset = get_dataset(dataset_name, preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
@@ -82,22 +82,22 @@ if __name__ == '__main__':
         print("### Collecting results on " + dataset_name + ", Pre-Trained model")
         results_pt[dataset_name] = {}
         
-        print("# Computing accuracy on Validation split")
-        results_pt[dataset_name]['train'] = compute_accuracy(pt_model, val_split, args.device)
+        print("# Computing accuracy on Train split")
+        results_pt[dataset_name]['train'] = compute_accuracy(pt_model, train_split, args.device)
         print("# Computing accuracy on Test split")
         results_pt[dataset_name]['test'] = compute_accuracy(pt_model, test_split, args.device)
-        print("# Computing logTraceFIM on Train split, Pre-Trained model")
+        print("# Computing logTraceFIM")
         results_pt[dataset_name]['logTrFIM'] = utils.train_diag_fim_logtr(args, pt_model, dataset_name)
 
         
         print("### Collecting results on " + dataset_name + ", Fine-Tuned model")
         results_ft[dataset_name] = {}
         
-        print("# Computing accuracy on Validation split")
-        results_ft[dataset_name]['train'] = compute_accuracy(ft_model, val_split, args.device)
+        print("# Computing accuracy on Train split")
+        results_ft[dataset_name]['train'] = compute_accuracy(ft_model, train_split, args.device)
         print("# Computing accuracy on Test split")
         results_ft[dataset_name]['test'] = compute_accuracy(ft_model, test_split, args.device)
-        print("# Computing logTraceFIM on Train split, Fine-Tuned model")
+        print("# Computing logTraceFIM")
         results_ft[dataset_name]['logTrFIM'] = utils.train_diag_fim_logtr(args, ft_model, dataset_name)
 
     
