@@ -12,7 +12,7 @@ from heads import get_classification_head
 import utils
 
 ## Static parameters ##
-DL_NUM_WORKERS = 2
+DL_NUM_WORKERS = 2                          # Dataloader 'num_workers' parameter
 
 
 def compute_accuracy(model: ImageClassifier, split: torch.utils.data.DataLoader, device: str) -> float:
@@ -53,10 +53,10 @@ if __name__ == '__main__':
     # Load the pre-trained encoder
     pt_encoder = utils.torch_load(args.save + "encoder_Zeroshot.pt", args.device)
 
-    # Accuracies (on both val and test split) and logTrFIM for pre-trained model
+    # Accuracies (on both train and test split) and logTrFIM for pre-trained model
     results_pt = {}
 
-    # Accuracies (on both val and test split) and logTrFIM for fine-tuned models
+    # Accuracies (on both train and test split) and logTrFIM for fine-tuned models
     results_ft = {}
 
     # Iterate over each dataset
