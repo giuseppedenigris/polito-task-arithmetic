@@ -13,9 +13,9 @@ python finetune.py \
 # Run eval_single_task.py
 python eval_single_task.py \
 --data-location=../datasets/ \
---save=../results/ \
+--save=../results/
 
 # Run eval_task_addition.py
 python eval_task_addition.py \
 --data-location=../datasets/ \
---save=../results/ \
+--save=../results/
