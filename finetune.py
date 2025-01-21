@@ -40,7 +40,7 @@ if __name__ == '__main__':
         encoder = ImageEncoder(args)                                # Pre-trained CLIP ViT backbone
         
         # We use SGD without momentum (or with?)
-        optimizer = torch.optim.SGD(encoder.parameters(), lr=args.lr)
+        optimizer = torch.optim.SGD(encoder.parameters(), lr=args.lr, weight_decay=args.wd)
 
         # Attach the classification head to the encoder
         head = get_classification_head(args, dataset_name + "Val")  # Get the open-vocabulary classifier of the dataset
