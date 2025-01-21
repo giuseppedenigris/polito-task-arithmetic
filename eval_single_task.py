@@ -53,9 +53,6 @@ if __name__ == '__main__':
     # Load the pre-trained encoder
     pt_encoder = utils.torch_load(args.save + "encoder_Zeroshot.pt", args.device)
 
-    # Accuracies (on both train and test split) and logTrFIM for pre-trained model
-    results_pt = {}
-
     # Accuracies (on both train and test split) and logTrFIM for fine-tuned models
     results_ft = {}
 
@@ -78,17 +75,6 @@ if __name__ == '__main__':
         # Obtain the Test split of the dataset
         test_dataset = get_dataset(dataset_name, preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
         test_split = get_dataloader(test_dataset, is_train=False, args=args)
-
-        print("### Collecting results on " + dataset_name + ", Pre-Trained model")
-        results_pt[dataset_name] = {}
-        
-        print("# Computing accuracy on Train split")
-        results_pt[dataset_name]['train'] = compute_accuracy(pt_model, train_split, args.device)
-        print("# Computing accuracy on Test split")
-        results_pt[dataset_name]['test'] = compute_accuracy(pt_model, test_split, args.device)
-        print("# Computing logTraceFIM")
-        results_pt[dataset_name]['logTrFIM'] = utils.train_diag_fim_logtr(args, pt_model, dataset_name)
-
         
         print("### Collecting results on " + dataset_name + ", Fine-Tuned model")
         results_ft[dataset_name] = {}
@@ -100,9 +86,6 @@ if __name__ == '__main__':
         print("# Computing logTraceFIM")
         results_ft[dataset_name]['logTrFIM'] = utils.train_diag_fim_logtr(args, ft_model, dataset_name)
 
-    
-    with open(args.save + "results_pt.json", "w+") as fp:
-        json.dump(results_pt, fp)
     
     with open(args.save + "results_ft.json", "w+") as fp:
         json.dump(results_ft, fp)
