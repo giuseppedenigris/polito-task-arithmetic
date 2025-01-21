@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Find optimal alpha -----------------------------------------------------------------------------------------------
 
     # Alpha is searched in the range [0, 1] with steps of 0.05
-    alpha_range = [x/100 for x in range(5,101,5)]
+    alpha_range = [x/100 for x in range(0,101,5)]
 
     # Some variables where to cache Validation datasets and Validation dataloaders
     val_datasets, val_splits = {}, {}
