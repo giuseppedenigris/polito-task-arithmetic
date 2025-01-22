@@ -47,7 +47,7 @@ if __name__ == '__main__':
     # Find optimal alpha -----------------------------------------------------------------------------------------------
 
     # Alpha is searched in the range [0, 1] with steps of 0.05
-    alpha_range = [x/100 for x in range(0,101,5)]
+    alpha_range = [x/100 for x in range(5,101,5)]
 
     # Some variables where to cache Validation datasets and Validation dataloaders
     val_datasets, val_splits = {}, {}
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 val_splits[dataset_name] = get_dataloader(val_datasets[dataset_name], is_train=False, args=args)
 
             # Compute absolute accuracy
-            print(f"#DBG: alpha: {alpha}  dataset: {dataset_name}")
+            print(f"# Alpha search | value: {alpha}  dataset: {dataset_name}")
             abs_accuracy = eval_single_task.compute_accuracy(merged_model, val_splits[dataset_name], args.device)
 
             # Normalize w.r.t. the single_task accuracy of the finetuned model
@@ -92,6 +92,9 @@ if __name__ == '__main__':
     
     # Absolute Accuracies (on both train and test split) and logTrFIM for scaled finetuned models
     results_sf = {}
+
+    # Also store alpha in results_sf
+    results_sf["alpha"] = alpha
 
     # Absolute and Normalized Accuracies (on both train and test split) and logTrFIM for the merged model
     results_mg = {}
