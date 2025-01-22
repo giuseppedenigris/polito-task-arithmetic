@@ -18,6 +18,12 @@ if __name__ == '__main__':
     # Get the cli arguments
     args = parse_arguments()
 
+    # Print the chosen parameters
+    print( "[INFO] Finetuning parameters")
+    print(f"       >   batch size: {args.batch_size}")
+    print(f"       >   learning rate: {args.lr}")
+    print(f"       >   weight decay: {args.wd}")
+
     # Define loss function
     criterion = torch.nn.CrossEntropyLoss()                         # Loss function
 
