@@ -149,3 +149,5 @@ if __name__ == '__main__':
     
     with open(args.save + "results_mg.json", "w+") as fp:
         json.dump(results_mg, fp)
+    
+    print("[INFO] Completed")
