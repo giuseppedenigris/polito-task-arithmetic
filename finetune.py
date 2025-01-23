@@ -39,7 +39,7 @@ class TrainingHistory:
                 self.best_metrics[metric] = self.history[metric][-1]
                 self.best_params[metric] = {key: value.clone() for key, value in net.state_dict().items()}
 
-def compute_accuracy_and_loss(model, split: DataLoader, device: str, use_tqdm: True):
+def compute_accuracy_and_loss(model, split: DataLoader, device: str, use_tqdm=True):
     model.train(False)                      # Set model to evaluation mode
     model.to(device)                        # Move to GPU if device is cuda
     
