@@ -23,7 +23,7 @@ class TrainingHistory:
 
         self.criteria = criteria
         for metric in criteria:
-            assert metric + ".." in self.history.keys(), f"Chosen metric ({metric}) does not exist"
+            assert metric in self.history.keys(), f"Chosen metric ({metric}) does not exist"
 
         self.best_metrics = {}
         self.best_params = {}
