@@ -156,9 +156,9 @@ if __name__ == '__main__':
             
             train_accuracy, train_loss = compute_accuracy_and_loss(model, train_split, args.device)
             val_accuracy, val_loss = compute_accuracy_and_loss(model, val_split, args.device)
-            logTrFIM = utils.train_diag_fim_logtr(args, model, dataset_name)
+            logTrFIM = utils.train_diag_fim_logtr(args, model, dataset_name, samples_nr=200)
 
-            finetune_history.update(model.encoder, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM)
+            finetune_history.update(model.image_encoder, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM)
 
         # Save the finetune history to file
         with open(args.save + "ft_history_" + dataset_name + ".json") as fp:
