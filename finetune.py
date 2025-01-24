@@ -14,32 +14,33 @@ import utils
 
 ## Static parameters ##
 LOG_FREQUENCY = 50
+DL_NUM_WORKERS = 4                          # Dataloader 'num_workers' parameter
 
 
 class TrainingHistory:
-    def __init__(self, criteria=["logTrFIM", "val_accuracy"]):
+    def __init__(self, metrics: list[str], criteria=[]):
         """Keeps track of the training history of the network, namely the accuracy and the loss on both the training and validation sets, and the logTrFIM. Stores the best network parameters according to the specified criteria"""
-        self.history = {"train_loss": [], "train_accuracy": [], "val_loss": [], "val_accuracy": [], "logTrFIM": []}
+        self.metrics = metrics
+        self.history = {metric: [] for metric in self.metrics}
 
         self.criteria = criteria
         for metric in criteria:
-            assert metric in self.history.keys(), f"Chosen metric ({metric}) does not exist"
+            assert metric in self.history.keys(), f"Chosen metric ({metric}) does not exist in this TrainingHistory object"
 
         self.best_metrics = {}
         self.best_params = {}
 
-    def update(self, net, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM):
+    def update(self, net, *args):
         """Updates the training history. Call this at each epoch"""
-        self.history["train_accuracy"].append(train_accuracy)
-        self.history["train_loss"].append(train_loss)
-        self.history["val_accuracy"].append(val_accuracy)
-        self.history["val_loss"].append(val_loss)
-        self.history["logTrFIM"].append(logTrFIM)
+        assert len(args) == len(self.history.keys())
+        for metric, value in zip(self.metrics, args):
+            self.history[metric].append(value)
 
         for metric in self.criteria:
             if len(self.best_metrics) < len(self.criteria) or self.history[metric][-1] > self.best_metrics[metric]:
                 self.best_metrics[metric] = self.history[metric][-1]
                 self.best_params[metric] = {key: value.clone() for key, value in net.state_dict().items()}
+                print(f"Epoch {len(self.history[metric])} | new model with higher {metric} (={self.best_metrics[metric]}) saved")
 
 def compute_accuracy_and_loss(model, split: DataLoader, device: str, use_tqdm=True):
     model.train(False)                      # Set model to evaluation mode
@@ -115,15 +116,15 @@ if __name__ == '__main__':
         model.to(args.device)
 
         # Obtain the Train split of the dataset
-        train_dataset = get_dataset(dataset_name + "Val", preprocess=model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
+        train_dataset = get_dataset(dataset_name + "Val", preprocess=model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
         train_split = get_dataloader(train_dataset, is_train=True, args=args)
         
         # Obtain the Validation split of the dataset
-        val_dataset = get_dataset(dataset_name + "Val", preprocess=model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
+        val_dataset = get_dataset(dataset_name + "Val", preprocess=model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
         val_split = get_dataloader(val_dataset, is_train=False, args=args)
         
         # Use a TrainingHistory object to track the best model based on logTrFIM and Validation Accuracy
-        finetune_history = TrainingHistory(criteria=["logTrFIM", "val_accuracy"])
+        finetune_history = TrainingHistory(["train_accuracy", "train_loss", "val_accuracy", "val_loss", "logTrFIM"], criteria=["logTrFIM", "val_accuracy"])
 
         # Start iterating over the epochs
         current_step = 0
@@ -156,17 +157,36 @@ if __name__ == '__main__':
 
                 current_step += 1
             
+            print(f"Epoch {epoch+1} | collecting results on Train split")
             train_accuracy, train_loss = compute_accuracy_and_loss(model, train_split, args.device)
+            
+            print(f"Epoch {epoch+1} | collecting results on Validation split")
             val_accuracy, val_loss = compute_accuracy_and_loss(model, val_split, args.device)
+
+            print(f"Epoch {epoch+1} | computing logTrFIM")
             logTrFIM = utils.train_diag_fim_logtr(args, model, dataset_name, samples_nr=200)
 
             finetune_history.update(model.image_encoder, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM)
 
         # Save the finetune history to file
-        with open(args.save + "ft_history_" + dataset_name + ".json") as fp:
+        print("Saving finetune history of " + dataset_name)
+        with open(args.save + "ft_history_" + dataset_name + ".json", "w") as fp:
             json.dump(finetune_history.history, fp)
 
-        # Save fine-tuned weights (don’t need to store classification heads)
-        model.image_encoder.save(args.save + "encoder_" + dataset_name + ".pt")
+        # Save best encoder based on logTrFIM
+        model.image_encoder.load_state_dict(finetune_history.best_params["logTrFIM"])
+        model.image_encoder.save(args.save + "results_logTrFIM/encoder_" + dataset_name + ".pt")
 
+        ### ------
+        acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
+        print(f"val | acc: {acc} loss: {loss}")
+        ### ------
 
+        # Save best encoder based on Validation Accuracy
+        model.image_encoder.load_state_dict(finetune_history.best_params["val_accuracy"])
+        model.image_encoder.save(args.save + "results_val_accuracy/encoder_" + dataset_name + ".pt")
+        
+        ### ------
+        acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
+        print(f"val | acc: {acc} loss: {loss}")
+        ### ------

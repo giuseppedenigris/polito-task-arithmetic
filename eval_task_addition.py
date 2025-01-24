@@ -27,7 +27,7 @@ if __name__ == '__main__':
     # Each dataset represents a different downstream task for the model
     dataset_names = ["DTD", "EuroSAT", "GTSRB", "MNIST", "RESISC45", "SVHN"]
 
-    # Build task vectors
+    # Build the task vectors
     task_vectors = {}
     for dataset_name in dataset_names:
         task_vectors[dataset_name] = NonLinearTaskVector(args.save + "encoder_Zeroshot.pt", args.save + "encoder_" + dataset_name + ".pt")
@@ -40,9 +40,24 @@ if __name__ == '__main__':
     for dataset_name in dataset_names:
         classification_heads[dataset_name] = get_classification_head(args, dataset_name + "Val")    # Get the open-vocabulary classifier of the dataset
 
-    # Load single_task results of the finetuned models
+    # Load the Finetuned models (used to evaluate the Single Task Accuracy on the Validation split)
+    ft_encoders = {}
+    for dataset_name in dataset_names:
+        ft_encoders[dataset_name] = utils.torch_load(args.save + "encoder_" + dataset_name + ".pt")
+
+    # Single Task Accuracies of the finetuned models on the Validation split
+    st_accuracies_val = {}
+    for dataset_name in dataset_names:
+        st_accuracies_val[dataset_name] = None
+
+    # Load Single Task results of the finetuned models (we need the Single Task Accuracy on the Train split for normalization)
     with open(args.save + "results_ft.json") as fp:
         st_results = json.load(fp)
+
+    # Single Task Accuracies of the finetuned models on the Validation split
+    st_accuracies_val = {}
+    for dataset_name in dataset_names:
+        st_accuracies_val[dataset_name] = None
 
     # Find optimal alpha -----------------------------------------------------------------------------------------------
 
@@ -66,17 +81,23 @@ if __name__ == '__main__':
             # Build full classification model
             merged_model = ImageClassifier(merged_encoder, classification_heads[dataset_name])
 
-            # Load Validation splits of the datasets if they're not cached yet
+            # Load Validation split of the dataset if it's not cached yet
             if val_datasets[dataset_name] is None:
                 val_datasets[dataset_name] = get_dataset(dataset_name + "Val", preprocess=merged_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
                 val_splits[dataset_name] = get_dataloader(val_datasets[dataset_name], is_train=False, args=args)
 
+            # Compute the Single Task Accuracy on the Validation split if not calculated yet
+            if st_accuracies_val[dataset_name] is None:
+                ft_model = ImageClassifier(ft_encoders[dataset_name], classification_heads[dataset_name])
+                print(f"# Alpha search | computing Single Task Accuracy on the validation split of {dataset_name}")
+                st_accuracies_val[dataset_name] = eval_single_task.compute_accuracy(ft_model, val_splits[dataset_name], args.device)
+
             # Compute absolute accuracy
-            print(f"# Alpha search | value: {alpha}  dataset: {dataset_name}")
+            print(f"# Alpha search | value: {alpha}  dataset: {dataset_name} (validation split)")
             abs_accuracy = eval_single_task.compute_accuracy(merged_model, val_splits[dataset_name], args.device)
 
             # Normalize w.r.t. the single_task accuracy of the finetuned model
-            norm_accuracies[alpha][dataset_name] = abs_accuracy/st_results[dataset_name]["train"]
+            norm_accuracies[alpha][dataset_name] = abs_accuracy/st_accuracies_val[dataset_name]
         
         # Compute Average Normalized Accuracy
         norm_accuracies[alpha]["Average"] = sum(norm_accuracies[alpha].values()) / len(dataset_names)
@@ -84,7 +105,7 @@ if __name__ == '__main__':
     # Select alpha with maximum Avg Normalized Accuracy
     alpha = max(norm_accuracies, key=lambda alpha: norm_accuracies[alpha]["Average"])
 
-    print("Optimal alpha:", alpha)
+    print(f"Optimal alpha: {alpha} (Average Normalized Accuracy on validation split: {norm_accuracies[alpha]["Average"]})", )
 
     # --------------------------------------------------------------------------------------------------------------------
 
