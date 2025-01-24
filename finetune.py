@@ -30,9 +30,11 @@ class TrainingHistory:
 
     def update(self, net, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM):
         """Updates the training history. Call this at each epoch"""
-        self.history["train_accuracy"], self.history["train_loss"] = train_accuracy, train_loss
-        self.history["val_accuracy"], self.history["val_loss"] = val_accuracy, val_loss
-        self.history["logTrFIM"] = logTrFIM
+        self.history["train_accuracy"].append(train_accuracy)
+        self.history["train_loss"].append(train_loss)
+        self.history["val_accuracy"].append(val_accuracy)
+        self.history["val_loss"].append(val_loss)
+        self.history["logTrFIM"].append(logTrFIM)
 
         for metric in self.criteria:
             if len(self.best_metrics) == 0 or self.history[metric][-1] > self.best_metrics[metric]:
