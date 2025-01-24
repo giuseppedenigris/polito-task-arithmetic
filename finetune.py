@@ -158,36 +158,39 @@ if __name__ == '__main__':
 
                 current_step += 1
             
-            print(f"Epoch {epoch+1} | collecting results on Train split")
-            train_accuracy, train_loss = compute_accuracy_and_loss(model, train_split, args.device)
+            # print(f"Epoch {epoch+1} | collecting results on Train split")
+            # train_accuracy, train_loss = compute_accuracy_and_loss(model, train_split, args.device)
             
-            print(f"Epoch {epoch+1} | collecting results on Validation split")
-            val_accuracy, val_loss = compute_accuracy_and_loss(model, val_split, args.device)
+            # print(f"Epoch {epoch+1} | collecting results on Validation split")
+            # val_accuracy, val_loss = compute_accuracy_and_loss(model, val_split, args.device)
 
-            print(f"Epoch {epoch+1} | computing logTrFIM")
-            logTrFIM = utils.train_diag_fim_logtr(args, model, dataset_name, samples_nr=200)
+            # print(f"Epoch {epoch+1} | computing logTrFIM")
+            # logTrFIM = utils.train_diag_fim_logtr(args, model, dataset_name, samples_nr=200)
 
-            finetune_history.update(model.image_encoder, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM)
+            # finetune_history.update(model.image_encoder, train_accuracy, train_loss, val_accuracy, val_loss, logTrFIM)
+
+
+        model.image_encoder.save(args.save + "encoder_" + dataset_name + ".pt")
 
         # Save the finetune history to file
-        print("Saving finetune history of " + dataset_name)
-        with open(args.save + "ft_history_" + dataset_name + ".json", "w") as fp:
-            json.dump(finetune_history.history, fp)
+        # print("Saving finetune history of " + dataset_name)
+        # with open(args.save + "ft_history_" + dataset_name + ".json", "w") as fp:
+        #     json.dump(finetune_history.history, fp)
 
         # Save best encoder based on logTrFIM
-        model.image_encoder.load_state_dict(finetune_history.best_params["logTrFIM"])
-        model.image_encoder.save(args.save + "results_logTrFIM/encoder_" + dataset_name + ".pt")
+        # model.image_encoder.load_state_dict(finetune_history.best_params["logTrFIM"])
+        # model.image_encoder.save(args.save + "results_logTrFIM/encoder_" + dataset_name + ".pt")
 
         ### ------
-        acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
-        print(f"val | acc: {acc} loss: {loss}")
+        # acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
+        # print(f"val | acc: {acc} loss: {loss}")
         ### ------
 
-        # Save best encoder based on Validation Accuracy
-        model.image_encoder.load_state_dict(finetune_history.best_params["val_accuracy"])
-        model.image_encoder.save(args.save + "results_val_accuracy/encoder_" + dataset_name + ".pt")
+        # # Save best encoder based on Validation Accuracy
+        # model.image_encoder.load_state_dict(finetune_history.best_params["val_accuracy"])
+        # model.image_encoder.save(args.save + "results_val_accuracy/encoder_" + dataset_name + ".pt")
         
-        ### ------
-        acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
-        print(f"val | acc: {acc} loss: {loss}")
-        ### ------
+        # ### ------
+        # acc, loss = compute_accuracy_and_loss(model, val_split, args.device, use_tqdm=False)
+        # print(f"val | acc: {acc} loss: {loss}")
+        # ### ------
