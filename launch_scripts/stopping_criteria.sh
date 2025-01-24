@@ -13,12 +13,12 @@ python finetune.py \
 # Run eval_single_task.py for "results/results_logTrFIM/"
 python eval_single_task.py \
 --data-location=../datasets/ \
---save=../results/
+--save=../results/results_logTrFIM/
 
 # Run eval_task_addition.py for "results/results_logTrFIM/"
-python eval_single_task.py \
+python eval_task_addition.py \
 --data-location=../datasets/ \
---save=../results/
+--save=../results/results_logTrFIM/
 
 # Run eval_single_task.py for "results/results_val_accuracy/"
 python eval_single_task.py \
@@ -26,6 +26,6 @@ python eval_single_task.py \
 --save=../results/results_val_accuracy/
 
 # Run eval_task_addition.py for "results/results_val_accuracy/"
-python eval_single_task.py \
+python eval_task_addition.py \
 --data-location=../datasets/ \
 --save=../results/results_val_accuracy/

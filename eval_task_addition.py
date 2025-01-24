@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # Select alpha with maximum Avg Normalized Accuracy
     alpha = max(norm_accuracies, key=lambda alpha: norm_accuracies[alpha]["Average"])
 
-    print(f"Optimal alpha: {alpha} (Average Normalized Accuracy on validation split: {norm_accuracies[alpha]["Average"]})", )
+    print(f"Optimal alpha: {alpha} (Average Normalized Accuracy on validation split: {norm_accuracies[alpha]['Average']})", )
 
     # --------------------------------------------------------------------------------------------------------------------
 
