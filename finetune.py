@@ -37,7 +37,7 @@ class TrainingHistory:
         self.history["logTrFIM"].append(logTrFIM)
 
         for metric in self.criteria:
-            if len(self.best_metrics) == 0 or self.history[metric][-1] > self.best_metrics[metric]:
+            if len(self.best_metrics) < len(self.criteria) or self.history[metric][-1] > self.best_metrics[metric]:
                 self.best_metrics[metric] = self.history[metric][-1]
                 self.best_params[metric] = {key: value.clone() for key, value in net.state_dict().items()}
 
