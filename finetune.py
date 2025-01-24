@@ -95,9 +95,11 @@ if __name__ == '__main__':
     # Instantiate a full model architecture
     encoder = ImageEncoder(args)                                    # Pre-trained CLIP ViT backbone
 
-    # Save pre-trained weights (don’t need to store classification heads)
-    encoder.save(args.save + "results_logTrFIM/encoder_Zeroshot.pt")
-    encoder.save(args.save + "results_val_accuracy/encoder_Zeroshot.pt")
+    # # Save pre-trained weights (don’t need to store classification heads)
+    # encoder.save(args.save + "results_logTrFIM/encoder_Zeroshot.pt")
+    # encoder.save(args.save + "results_val_accuracy/encoder_Zeroshot.pt")
+
+    encoder.save(args.save + "encoder_Zeroshot.pt")
 
     # Iterate over each dataset
     for dataset_name in dataset_names:
