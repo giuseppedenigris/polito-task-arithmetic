@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         # Obtain the balanced Train split of the dataset
         train_dataset = get_dataset(dataset_name + "Val", preprocess=model.train_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
-        balanced_trainset = BalancedDataset(train_dataset.train_dataset)
+        balanced_trainset = BalancedDataset(train_dataset.train_dataset, cache_path=args.save + ".bal_cache_" + dataset_name + ".json")
         train_split = DataLoader(balanced_trainset, args.batch_size, shuffle=True, num_workers=DL_NUM_WORKERS)
         
         # Obtain the Validation split of the dataset
