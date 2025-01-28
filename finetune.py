@@ -36,7 +36,7 @@ if __name__ == '__main__':
     dataset_names = ["DTD", "EuroSAT", "GTSRB", "MNIST", "RESISC45", "SVHN"]
 
     # Each dataset should be trained with this number of epochs to balance the total number of iterations across the different datasets
-    dataset_epochs = {"DTD": 76, "EuroSAT": 12, "GTSRB": 11, "MNIST": 5, "RESISC45": 15, "SVHN": 4}
+    dataset_epochs = {'DTD': 57, 'EuroSAT': 18, 'GTSRB': 47, 'MNIST': 5, 'RESISC45': 17, 'SVHN': 6}
     
     # Instantiate a full model architecture
     encoder = ImageEncoder(args)                                    # Pre-trained CLIP ViT backbone
