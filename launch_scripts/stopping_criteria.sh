@@ -3,7 +3,7 @@
 # 3) Task addition
 
 # Run finetune.py which produces two results based on two different stopping criteria: "results/results_logTrFIM/" and "results/results_val_accuracy/" 
-python finetune.py \
+python finetune_sc.py \
 --data-location=../datasets/ \
 --save=../results/ \
 --batch-size=32 \
