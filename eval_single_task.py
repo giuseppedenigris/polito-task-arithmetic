@@ -2,6 +2,7 @@
 import torch
 import json
 from tqdm import tqdm
+from torch.utils.data import DataLoader
 
 ## Local imports ##
 from args import parse_arguments
@@ -10,6 +11,7 @@ from datasets.common import get_dataloader, maybe_dictionarize
 from modeling import ImageClassifier, ImageEncoder
 from heads import get_classification_head
 import utils
+from balanced_dataset import BalancedDataset
 
 ## Static parameters ##
 DL_NUM_WORKERS = 2                          # Dataloader 'num_workers' parameter
@@ -70,7 +72,8 @@ if __name__ == '__main__':
 
         # Obtain the Train split of the dataset
         train_dataset = get_dataset(dataset_name + "Val", preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=2)
-        train_split = get_dataloader(train_dataset, is_train=True, args=args)
+        balanced_trainset = BalancedDataset(train_dataset.train_dataset)
+        train_split = DataLoader(balanced_trainset, args.batch_size, shuffle=True, num_workers=DL_NUM_WORKERS)
 
         # Obtain the Test split of the dataset
         test_dataset = get_dataset(dataset_name, preprocess=pt_model.val_preprocess, location=args.data_location, batch_size=args.batch_size, num_workers=DL_NUM_WORKERS)
